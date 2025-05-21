@@ -763,6 +763,23 @@ def draw_point_history(image, point_history):
 
 
 def draw_info(image, fps, mode, number):
+    """
+    Draw system information on the image.
+    
+    This function draws:
+    1. FPS counter
+    2. Current operation mode
+    3. Selected number (when in logging mode)
+    
+    Args:
+        image (numpy.ndarray): Input image
+        fps (int): Current frames per second
+        mode (int): Current operation mode
+        number (int): Selected number for logging
+    
+    Returns:
+        numpy.ndarray: Image with system information drawn
+    """
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
                1.0, (0, 0, 0), 4, cv.LINE_AA)
     cv.putText(image, "FPS:" + str(fps), (10, 30), cv.FONT_HERSHEY_SIMPLEX,
