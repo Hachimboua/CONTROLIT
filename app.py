@@ -26,12 +26,37 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'model'))
 from model.keypoint_classifier.keypoint_classifier_pyt import KeyPointClassifier
 
 
+"""
+Hand Gesture Recognition System
 
+This module implements a real-time hand gesture recognition system using computer vision.
+It uses MediaPipe for hand landmark detection and custom classifiers for gesture recognition.
+The system can recognize various hand gestures and trigger keyboard actions based on them.
 
+Dependencies:
+    - OpenCV
+    - MediaPipe
+    - PyTorch
+    - PyAutoGUI
+    - NumPy
 
-
-
+Author: Unknown
+License: Unknown
+Version: 1.0.0
+"""
 def get_args():
+    """
+    Parse command line arguments for the hand gesture recognition system.
+    
+    Returns:
+        argparse.Namespace: An object containing the following attributes:
+            - device (int): Camera device ID (default: 0)
+            - width (int): Capture width resolution (default: 960)
+            - height (int): Capture height resolution (default: 540)
+            - use_static_image_mode (bool): Whether to use static image mode
+            - min_detection_confidence (float): Minimum confidence for hand detection (default: 0.7)
+            - min_tracking_confidence (float): Minimum confidence for hand tracking (default: 0.5)
+    """
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--device", type=int, default=0)
@@ -54,6 +79,25 @@ def get_args():
 
 
 def main():
+    """
+    Main function to run the hand gesture recognition system.
+    
+    This function:
+    1. Initializes the camera and sets up the MediaPipe Hands model
+    2. Loads the keypoint and point history classifiers
+    3. Sets up data structures for tracking gesture history
+    4. Runs the main processing loop that:
+       - Captures video frames
+       - Detects hand landmarks
+       - Classifies hand gestures
+       - Triggers actions based on recognized gestures (space bar or F5)
+       - Displays visualization of hand landmarks and gesture information
+    5. Terminates the program when ESC key is pressed
+    
+    Note:
+        The system includes a cooldown mechanism to prevent repeated actions
+        from the same gesture.
+    """
     # Argument parsing #################################################################
     args = get_args()
 
@@ -242,6 +286,21 @@ def main():
 
 
 def select_mode(key, mode):
+    """
+    Select operation mode based on keyboard input.
+    
+    Args:
+        key (int): ASCII value of the pressed key
+        mode (int): Current operation mode
+    
+    Returns:
+        tuple: A tuple containing (number, mode) where:
+            - number (int): Selected number (0-9) or -1 if no number selected
+            - mode (int): Updated operation mode:
+                - 0: Normal operation
+                - 1: Logging keypoint data (when 'k' is pressed)
+                - 2: Logging point history (when 'h' is pressed)
+    """
     number = -1
     if 48 <= key <= 57:  # 0 ~ 9
         number = key - 48
@@ -255,6 +314,18 @@ def select_mode(key, mode):
 
 
 def calc_bounding_rect(image, landmarks):
+    """
+    Calculate the bounding rectangle around hand landmarks.
+    
+    Args:
+        image (numpy.ndarray): Input image
+        landmarks (mediapipe.framework.formats.landmark_pb2.NormalizedLandmarkList): 
+            Hand landmarks detected by MediaPipe
+    
+    Returns:
+        list: Coordinates of the bounding rectangle [x1, y1, x2, y2]
+            where (x1, y1) is the top-left corner and (x2, y2) is the bottom-right corner
+    """
     image_width, image_height = image.shape[1], image.shape[0]
 
     landmark_array = np.empty((0, 2), int)
@@ -273,6 +344,17 @@ def calc_bounding_rect(image, landmarks):
 
 
 def calc_landmark_list(image, landmarks):
+    """
+    Convert normalized landmark coordinates to pixel coordinates.
+    
+    Args:
+        image (numpy.ndarray): Input image
+        landmarks (mediapipe.framework.formats.landmark_pb2.NormalizedLandmarkList): 
+            Hand landmarks detected by MediaPipe
+    
+    Returns:
+        list: List of landmark points as [x, y] pixel coordinates
+    """
     image_width, image_height = image.shape[1], image.shape[0]
 
     landmark_point = []
@@ -289,6 +371,20 @@ def calc_landmark_list(image, landmarks):
 
 
 def pre_process_landmark(landmark_list):
+    """
+    Preprocess landmark coordinates for the keypoint classifier.
+    
+    Processing steps:
+    1. Convert to relative coordinates with the wrist as origin
+    2. Flatten the 2D list to 1D
+    3. Normalize coordinates to range [-1, 1]
+    
+    Args:
+        landmark_list (list): List of landmark points as [x, y] coordinates
+    
+    Returns:
+        list: Preprocessed landmark coordinates as a 1D list
+    """
     temp_landmark_list = copy.deepcopy(landmark_list)
 
     # Convert to relative coordinates
@@ -316,6 +412,21 @@ def pre_process_landmark(landmark_list):
 
 
 def pre_process_point_history(image, point_history):
+    """
+    Preprocess point history for the point history classifier.
+    
+    Processing steps:
+    1. Convert to relative coordinates with the first point as origin
+    2. Normalize by image dimensions
+    3. Flatten the 2D list to 1D
+    
+    Args:
+        image (numpy.ndarray): Input image
+        point_history (collections.deque): Queue of point history
+    
+    Returns:
+        list: Preprocessed point history as a 1D list
+    """
     image_width, image_height = image.shape[1], image.shape[0]
 
     temp_point_history = copy.deepcopy(point_history)
@@ -339,6 +450,23 @@ def pre_process_point_history(image, point_history):
 
 
 def logging_csv(number, mode, landmark_list, point_history_list):
+    """
+    Log processed landmark and point history data to CSV files.
+    
+    This function is used to collect training data for the classifiers.
+    
+    Args:
+        number (int): Label number (0-9)
+        mode (int): Operation mode
+            - 0: No logging
+            - 1: Log keypoint data
+            - 2: Log point history data
+        landmark_list (list): Preprocessed landmark coordinates
+        point_history_list (list): Preprocessed point history
+    
+    Returns:
+        None
+    """
     if mode == 0:
         pass
     if mode == 1 and (0 <= number <= 9):
@@ -355,6 +483,20 @@ def logging_csv(number, mode, landmark_list, point_history_list):
 
 
 def draw_landmarks(image, landmark_point):
+    """
+    Draw hand landmarks and connections on the image.
+    
+    This function draws:
+    1. Lines connecting the landmarks to show the hand skeleton
+    2. Circles at each landmark point
+    
+    Args:
+        image (numpy.ndarray): Input image
+        landmark_point (list): List of landmark points as [x, y] coordinates
+    
+    Returns:
+        numpy.ndarray: Image with landmarks drawn
+    """
     if len(landmark_point) > 0:
         # Thumb
         cv.line(image, tuple(landmark_point[2]), tuple(landmark_point[3]),
@@ -543,6 +685,17 @@ def draw_landmarks(image, landmark_point):
 
 
 def draw_bounding_rect(use_brect, image, brect):
+    """
+    Draw the bounding rectangle around the detected hand.
+    
+    Args:
+        use_brect (bool): Whether to draw the bounding rectangle
+        image (numpy.ndarray): Input image
+        brect (list): Coordinates of the bounding rectangle [x1, y1, x2, y2]
+    
+    Returns:
+        numpy.ndarray: Image with bounding rectangle drawn
+    """
     if use_brect:
         # Outer rectangle
         cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[3]),
@@ -553,6 +706,24 @@ def draw_bounding_rect(use_brect, image, brect):
 
 def draw_info_text(image, brect, handedness, hand_sign_text,
                    finger_gesture_text):
+    """
+    Draw information text on the image about the detected hand.
+    
+    This function draws:
+    1. A background rectangle for the text
+    2. Hand information (left/right and detected gesture)
+    
+    Args:
+        image (numpy.ndarray): Input image
+        brect (list): Coordinates of the bounding rectangle [x1, y1, x2, y2]
+        handedness (mediapipe.framework.formats.classification_pb2.ClassificationList):
+            Hand laterality (left or right) from MediaPipe
+        hand_sign_text (str): Detected hand sign label
+        finger_gesture_text (str): Detected finger gesture label
+    
+    Returns:
+        numpy.ndarray: Image with information text drawn
+    """
     cv.rectangle(image, (brect[0], brect[1]), (brect[2], brect[1] - 22),
                  (0, 0, 0), -1)
 
@@ -573,6 +744,16 @@ def draw_info_text(image, brect, handedness, hand_sign_text,
 
 
 def draw_point_history(image, point_history):
+    """
+    Draw point history trajectory on the image.
+    
+    Args:
+        image (numpy.ndarray): Input image
+        point_history (collections.deque): Queue of point history
+    
+    Returns:
+        numpy.ndarray: Image with point history drawn
+    """
     for index, point in enumerate(point_history):
         if point[0] != 0 and point[1] != 0:
             cv.circle(image, (point[0], point[1]), 1 + int(index / 2),
