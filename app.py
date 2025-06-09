@@ -25,7 +25,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'model'))
 # Import your model class
 from model.keypoint_classifier.keypoint_classifier_pyt import KeyPointClassifier
 
-
 """
 Hand Gesture Recognition System
 
@@ -258,9 +257,6 @@ def main():
                 )
 
                 
-
-                
-
 
 
                 
