@@ -25,7 +25,7 @@
   Prevents rapid repeat execution of the same command.
 
 - **🖐️ Single-Hand Processing**  
-  Explicitly processes gestures from only one hand (left arm only for better consistency).
+  Explicitly processes gestures from only one hand (right arm only for better consistency).
 
 - **🐛 Enhanced Debugging**  
   Visual debug overlays and detailed terminal output assist in system troubleshooting.
