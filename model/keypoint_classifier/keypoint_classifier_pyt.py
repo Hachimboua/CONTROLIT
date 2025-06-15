@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 # Same architecture as used during training
 class KeypointClassifier(nn.Module):
-    def __init__(self, num_classes=4):
+    def __init__(self, num_classes=5):
         super().__init__()
         self.model = nn.Sequential(
             nn.Dropout(0.2),
