@@ -1,20 +1,76 @@
-CONTROLIT: Hand Gesture Slideshow System 👨‍🏫This system offers a secure and intuitive way for a "professor" to control slideshow presentations using just their hand gestures. It leverages real-time computer vision, incorporating face recognition for authentication and MediaPipe for robust hand and pose landmark detection.Only the authenticated professor's gestures are processed, ensuring no unauthorized control. The system is designed with performance in mind, optimizing detection and tracking for a smooth user experience. 🚀Features ✨Professor Authentication: Ensures only the designated professor can operate the system via face recognition. 🧑‍🎓Optimized Pose Tracking: MediaPipe Pose is intelligently applied to a region of interest (ROI) around the professor's face, reducing computational overhead and preventing interference from other individuals.Adaptive Hand Region of Interest (ROI): Hand detection dynamically focuses around the professor's wrists, adapting to their distance from the camera for reliable tracking. 🖐️Efficient Processing: Face recognition runs on downscaled frames and less frequently once the professor is authenticated. ⚡Adjustable Face Tolerance: Recognition strictness adapts based on recent detection history.Gesture Cooldown: Prevents accidental rapid-fire execution of commands from the same gesture. ✋Single Hand Processing: Explicitly processes gestures from only one hand for commands.Strict Left Arm Focus: Wrist detection for gestures is exclusively limited to the anatomical left arm.Enhanced Debugging: Includes visual cues and detailed print statements for troubleshooting. 🐛Performance Boosts: Utilizes MediaPipe model complexity adjustments and optimized landmark processing.Data Collection Mode: Allows easy collection of new hand keypoint data for training additional gestures. 📊Demos & Screenshots 📸(Please replace these placeholders with actual images or GIFs of your application in action)Professor Authentication(Image/GIF showing the system recognizing the professor)Gesture Control (e.g., "Next Slide" gesture)(Image/GIF showing a hand gesture triggering a "next slide" action)Debug Mode Visualization(Screenshot showing the bounding boxes for face ROI, hand ROI, and landmark overlays in debug mode)Data Collection Mode(Screenshot showing the data collection UI and a hand pose being logged)Setup and Installation 🛠️PrerequisitesBefore running the system, ensure you have the following installed:Python 3.8+OpenCVMediaPipeface_recognitionPyAutoGUINumPyPyTorch (and torchvision)PyTorch Lightningtorchmetricsscikit-learnYou can install most of these using pip:pip install opencv-python mediapipe face_recognition pyautogui numpy torch torchvision pytorch-lightning torchmetrics scikit-learn
+# CONTROLIT: Hand Gesture Slideshow System 👨‍🏫
 
-Professor Image Setup 🖼️Place an image of the "professor" you want to authenticate in the project's root directory and name it professor.jpg. Ensure the image clearly shows the professor's face.hand-gesture-recognition-mediapipe-main/
-├── app.py
-├── professor.jpg  <-- Your professor's image goes here
-├── model/
-│   ├── keypoint_classifier/
-│   │   ├── keypoint.csv
-│   │   ├── keypoint_classifier_weights.pth
-│   │   ├── keypoint_classifier_label.csv
-│   │   └── keypoint_classifier_pyt.py
-│   └── ...other_models...
-└── utils.py
-└── ...other_files...
+**CONTROLIT** offers a secure, intuitive, and real-time way for a professor to control slideshow presentations using only hand gestures. The system combines advanced computer vision techniques—**face recognition** for authentication and **MediaPipe** for pose and hand tracking—to deliver a seamless, gesture-controlled experience.
 
-Model Preparation 🧠The system relies on a pre-trained KeyPointClassifier model.Make sure you have:model/keypoint_classifier/keypoint_classifier_weights.pth (the trained model weights)model/keypoint_classifier/keypoint_classifier_label.csv (labels corresponding to your gestures)Crucially: Ensure NUM_CLASSES in model/keypoint_classifier/keypoint_classifier_pyt.py matches the number of classes your keypoint_classifier_weights.pth model was trained for. If you've retrained the model to handle 5 classes, ensure NUM_CLASSES = 5 in that file.If you don't have a trained model, you can use the data collection mode to gather data and then train a new model using a separate training script (not included in app.py).Usage ▶️To run the application, navigate to the project's root directory in your terminal and execute:python app.py
+---
 
-Command Line Arguments ⚙️You can specify camera settings using command line arguments:--device <ID>: Camera device ID (default: 0)--width <pixels>: Camera capture width (default: 960)--height <pixels>: Camera capture height (default: 540)--use_static_image_mode: MediaPipe Hands: Treat input images as a batch (useful for debugging, not typical for live video).--min_detection_confidence <float>: MediaPipe Hands: Minimum confidence for hand detection (default: 0.7).--min_tracking_confidence <float>: MediaPipe Hands: Minimum confidence for hand tracking (default: 0.5).Example:python app.py --device 1 --width 1280 --height 720
+## 🚀 Features
 
-In-App Controls 🎮Esc or Q: Quit the application. 🚪D: Toggle Debug Mode (shows ROI boxes, landmarks, and info text). 🐞K: Enter Key Point Logging Mode (for collecting new gesture data). ✍️N: Switch back to Normal Operation Mode.0 - 9 (in Logging Mode): Assigns the specified number as the label for the current hand gesture when logging data. #️⃣Supported Gestures (Default Configuration) gesturesThe system is configured to recognize specific gestures and trigger corresponding pyautogui actions:Gesture IDActionPyAutoGUI Command1Start Presentationpyautogui.press("f5")2Next Slidepyautogui.press("space")3Previous Slidepyautogui.press("left")...(Add more as you train them)Note: The specific gestures mapped to IDs (1, 2, 3, etc.) depend on your keypoint_classifier_label.csv file and how you trained your model.Data Collection for New Gestures ➕If you want to add new gestures:Run app.py.Press K to enter Logging Key Point mode.Press a number key (0 through 9) to set the label for the gesture you are about to perform.Perform the desired hand gesture in front of the camera. The keypoint data will be appended to model/keypoint_classifier/keypoint.csv with the chosen label. 💾Repeat step 4 multiple times for each gesture to collect a robust dataset.Once you have enough data, you will need to train a new KeyPointClassifier model (using a separate training script) and update keypoint_classifier_weights.pth and keypoint_classifier_label.csv. Remember to update NUM_CLASSES if your total number of unique gestures changes!
+- **🧑‍🏫 Professor Authentication**  
+  Ensures that only the authorized professor can control the slideshow using face recognition.
+
+- **⚙️ Optimized Pose Tracking**  
+  MediaPipe Pose is applied selectively to a Region of Interest (ROI) around the professor’s face, reducing computation and preventing interference.
+
+- **📍 Adaptive Hand ROI**  
+  Hand detection focuses dynamically around the professor’s wrists, adapting to their distance from the camera.
+
+- **⚡ Efficient Processing**  
+  Face recognition runs on downscaled frames and less frequently once authentication is confirmed.
+
+- **🎚️ Adjustable Face Tolerance**  
+  Recognition strictness adjusts based on recent detection confidence history.
+
+- **✋ Gesture Cooldown**  
+  Prevents rapid repeat execution of the same command.
+
+- **🖐️ Single-Hand Processing**  
+  Explicitly processes gestures from only one hand (left arm only for better consistency).
+
+- **🐛 Enhanced Debugging**  
+  Visual debug overlays and detailed terminal output assist in system troubleshooting.
+
+- **📊 Data Collection Mode**  
+  Built-in data logger makes it easy to collect training data for new gestures.
+
+---
+
+## 📸 Demos & Screenshots
+
+> **Please replace the placeholders below with actual images or GIFs**
+
+- **Professor Authentication**  
+  _Image/GIF of system recognizing the professor_
+
+- **Gesture Control (e.g., "Next Slide")**  
+  _Image/GIF of a gesture triggering the "next slide" command_
+
+- **Debug Mode Visualization**  
+  _Screenshot showing face ROI, hand ROI, and landmarks_
+
+- **Data Collection Mode**  
+  _Screenshot of logging interface and hand keypoints_
+
+---
+
+## 🛠️ Setup and Installation
+
+### ✅ Prerequisites
+
+Ensure the following are installed:
+
+- Python 3.8+
+- OpenCV
+- MediaPipe
+- face_recognition
+- pyautogui
+- NumPy
+- PyTorch & torchvision
+- PyTorch Lightning
+- torchmetrics
+- scikit-learn
+
+Install using `pip`:
+
+```bash
+pip install opencv-python mediapipe face_recognition pyautogui numpy torch torchvision pytorch-lightning torchmetrics scikit-learn
