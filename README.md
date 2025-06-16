@@ -2,6 +2,8 @@
 
 **CONTROLIT** is an AI-powered system enabling professors to seamlessly control slideshow presentations using **hand gestures** and **voice commands**. It combines **face recognition** (for security), **gesture tracking** (via MediaPipe), and **speech recognition** (via Vosk) for a fully hands-free experience.
 
+READ THE DOC LINK : https://controlit-handgesturecontrolleddiaporama.readthedocs.io/en/latest/
+
 ---
 
 ## 🔑 Key Features
