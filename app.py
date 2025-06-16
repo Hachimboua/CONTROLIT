@@ -222,7 +222,7 @@ def main():
                     new_top, new_bottom = abs_nose_y - int(eye_dist * 1.5), abs_nose_y + int(eye_dist * 1.5)
                     professor_face_box_for_roi = (new_top, new_right, new_bottom, new_left)
 
-                landmarks = pose_results.pose_landmarks.landmark
+                landmarks = pose_results.pose_landmarks.landmark    
                 if landmarks[mp_pose.PoseLandmark.LEFT_WRIST].visibility > 0.5:
                     left_wrist = landmarks[mp_pose.PoseLandmark.LEFT_WRIST]
                     wrist_x = int(left_wrist.x * pose_input_image.shape[1]) + pose_roi_x1
