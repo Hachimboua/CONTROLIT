@@ -37,19 +37,8 @@
 
 ## 📸 Demos & Screenshots
 
-> **Please replace the placeholders below with actual images or GIFs**
-
-- **Professor Authentication**  
-  _Image/GIF of system recognizing the professor_
-
 - **Gesture Control (e.g., "Next Slide")**  
-  _Image/GIF of a gesture triggering the "next slide" command_
-
-- **Debug Mode Visualization**  
-  _Screenshot showing face ROI, hand ROI, and landmarks_
-
-- **Data Collection Mode**  
-  _Screenshot of logging interface and hand keypoints_
+![Next Slide](/images/next_up.png)
 
 ---
 
