@@ -80,7 +80,7 @@ controlit/
 │   │   └── keypoint.csv
 ├── professor.jpg         # Authorized professor face image
 ├── vosk-model-small-en-us-0.15/  # Speech model directory
-├── main.py               # Main script
+├── app.py               # Main script
 ├── README.md
 ```
 
